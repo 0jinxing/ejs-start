@@ -1,4 +1,7 @@
+const express = require("express");
+const chokidar = require("chokidar");
 const webpack = require("webpack");
+const webpackDevMiddleware = require("webpack-dev-middleware");
 const getEntryChunkArr = require("../utils/getEntryChunkArr");
 const getHtmlPluginInstanceArr = require("../utils/getHtmlPluginInstanceArr");
 
@@ -16,15 +19,12 @@ config.plugins = Array.isArray(config.plugins)
 
 const compiler = webpack(config);
 
-compiler.run((err, stats) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log(
-    stats.toString({
-      errorDetails: true,
-      colors: true
-    })
-  );
-});
+const app = express();
+const webpackDevMiddlewareInstance = webpackDevMiddleware(
+  compiler,
+  config.devServer
+);
+
+app.use(webpackDevMiddlewareInstance);
+
+app.listen(config.devServer.port);
